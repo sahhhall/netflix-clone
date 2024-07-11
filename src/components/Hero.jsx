@@ -26,7 +26,7 @@ const Hero = () => {
   return (
     <div className=" w-full h-[550px] lg:h[850px]">
       <div className="w-full h-full">
-        <div className="absolute w-full  h-[550px] lg:h[850px] ">
+        <div className="absolute w-full  h-[550px] lg:h[850px]  bg-gradient-to-t from-black" />
           <img
             className="w-full h-full object-cover object-top "
             src={createImgUrl(backdrop_path, 'original')}
@@ -46,7 +46,7 @@ const Hero = () => {
           <p className="w-full md:max-w-[70%] lg:max-w-[50%] xl:max-w-[35%] text-gray-200">{truncate(overview,165)}</p>
           </div>
           
-        </div>
+       
       </div>
     </div>
   );
