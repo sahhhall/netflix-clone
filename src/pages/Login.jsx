@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import img from "../assets/signup.jpg";
-import { Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Eye, EyeOff, LoaderCircle, LogOut, TriangleAlert } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 const Login = () => {
   const [formdata, setFormdata] = useState({
     email: "",
@@ -12,7 +14,9 @@ const Login = () => {
     password: "",
   });
   const [showpassword, setShowPassword] = useState(false);
-
+  const { user, logIn } = UserAuth();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { value, name } = e.target;
     setFormdata((prev) => ({
@@ -28,11 +32,11 @@ const Login = () => {
       if (!/\S+@\S+\.\S+/.test(value)) {
         error = "Email is invalid";
       }
-    } else if (name === "password") {
-      if (value.length < 6 || !/\d/.test(value)) {
-        error = "must be at least 6 characters long and contain a number";
-      }
-    }
+    } //else if (name === "password") {
+    //   if (value.length < 6 || !/\d/.test(value)) {
+    //     error = "must be at least 6 characters long and contain a number";
+    //   }
+    // }
 
     setValidationErr((prev) => ({
       ...prev,
@@ -40,7 +44,7 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formdata.email || !formdata.password) {
       setValidationErr((prev) => ({
@@ -50,7 +54,15 @@ const Login = () => {
       }));
       return;
     }
-    console.log("Formdata:", formdata);
+    setLoading(true);
+    try {
+      await logIn(formdata.email, formdata.password);
+      navigate("/");
+    } catch (err) {
+      toast.error("invalid credential");
+      console.log(err, "error from login ");
+      setLoading(false);
+    }
   };
 
   const handlePassword = () => {
@@ -69,6 +81,10 @@ const Login = () => {
         <div className="max-w-[450px] h-[480px] mx-auto bg-black/70 rounded-lg">
           <div className="max-w-[320px] mx-auto pt-16">
             <h1 className="font-nsans-bold text-2xl text-white">Sign In</h1>
+            {/* <div className="flex border rounded-md bg-gray-600/20 mt-2 p-2  border-red-700 items-center">
+                <TriangleAlert color="red" />
+                <span className="ps-4 font-normal  tracking-widest  text-red-600 text-xs" >not a valid password</span>
+            </div> */}
             <form className="w-full mt-8" onSubmit={handleSubmit}>
               <input
                 className={`w-full ${
@@ -96,7 +112,7 @@ const Login = () => {
                     validationErr.password
                       ? "border-red-500"
                       : "border-gray-300"
-                  } outline-none bg-transparent text-white placeholder-gray-400 rounded-lg pr-10`}
+                  } outline-none  bg-transparent text-white placeholder-gray-400 rounded-lg pr-10`}
                   placeholder="Password"
                   type={showpassword ? "text" : "password"}
                   name="password"
@@ -107,7 +123,7 @@ const Login = () => {
                   onClick={handlePassword}
                   className="absolute inset-y-0 right-0 bottom-3 pr-3 flex items-center cursor-pointer"
                 >
-                  <Eye />
+                  {showpassword ?  <EyeOff size={17} /> : <Eye  size={17}/>  } 
                 </div>
               </div>
               {validationErr.password && (
@@ -117,11 +133,18 @@ const Login = () => {
               )}
               <button
                 type="submit"
-                className="w-full bg-red-700 font-nsans-bold py-3 rounded-lg"
+                className="w-full bg-red-700 font-nsans-bold py-3 rounded-lg flex items-center justify-center"
               >
-                Sign In
+                {loading ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <span>Sign in</span>
+                )}
               </button>
-              <h1 className="w-full pb-2 text-center text-gray-300 mt-3 font-nsans-medium">OR</h1>
+
+              <h1 className=" pb-2 w-full text-xs text-center mt-3 font-nsans-light">
+                OR
+              </h1>
               <button
                 type="submit"
                 className="w-full bg-white/10 hover:bg-white/5   font-nsans-light tracking-widest text-sm py-2 rounded-lg"
@@ -139,6 +162,9 @@ const Login = () => {
                   Sign up now
                 </Link>
               </div>
+              <p className="text-xs font-sans text-gray-600 mt-4">
+              This page is protected by Google reCAPTCHA to ensure you're not a bot. <Link className=" border-b text-blue-900 border-blue-900">Learn more.</Link>
+              </p>
             </form>
           </div>
         </div>

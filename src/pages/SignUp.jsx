@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import img from "../assets/signup.jpg";
-import { Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 const SignUp = () => {
   const [formdata, setFormdata] = useState({
     email: "",
@@ -12,6 +14,11 @@ const SignUp = () => {
     password: "",
   });
   const [showpassword, setShowPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false)
+
+  const { user, signUp } = UserAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { value, name } = e.target;
@@ -40,7 +47,7 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formdata.email || !formdata.password) {
       setValidationErr((prev) => ({
@@ -49,6 +56,14 @@ const SignUp = () => {
         password: formdata.password ? "" : "Password is required",
       }));
       return;
+    }
+    setLoading(true);
+    try {
+      await signUp(formdata.email, formdata.password);
+      navigate("/");
+    } catch (error) {
+      toast.error("email already in use ")
+      setLoading(false);
     }
     console.log("Formdata:", formdata);
   };
@@ -107,7 +122,7 @@ const SignUp = () => {
                   onClick={handlePassword}
                   className="absolute inset-y-0 right-0 bottom-3 pr-3 flex items-center cursor-pointer"
                 >
-                  <Eye />
+                 {showpassword ?  <EyeOff size={17} /> : <Eye  size={17}/>  } 
                 </div>
               </div>
               {validationErr.password && (
@@ -117,16 +132,23 @@ const SignUp = () => {
               )}
               <button
                 type="submit"
-                className="w-full bg-red-700 font-nsans-bold py-3 rounded-lg"
+                className="w-full bg-red-700 font-nsans-bold py-3 rounded-lg flex items-center justify-center"
               >
-                Sign Up
+                {loading ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <span>Sign Up</span>
+                )}
               </button>
-              <h1 className="w-full text-center mt-3 font-nsans-light">OR</h1>
+              <h1 className="w-full text-center mt-3 text-xs font-nsans-light">OR</h1>
               <div className="flex justify-center items-center text-center">
                 <p className="text-xs text-gray-600 font-nsans-thin ">
                   already have an account?
                 </p>
-                <Link to="/login" className="  text-white-600 text-sm text-center ps-2">
+                <Link
+                  to="/login"
+                  className="  text-white-600 text-sm text-center ps-2"
+                >
                   Sign in
                 </Link>
               </div>

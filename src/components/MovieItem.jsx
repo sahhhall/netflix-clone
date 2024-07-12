@@ -1,13 +1,25 @@
 import React, { useState } from "react";
 import { createImgUrl } from "../services/movieService";
-import { Heart } from 'lucide-react'; // Assuming Heart is the outline version
-
+import { Heart } from "lucide-react"; // Assuming Heart is the outline version
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { db } from "../services/firebase";
+import { UserAuth } from "../context/AuthContext";
 const MovieItem = ({ movie }) => {
   const { title, backdrop_path, poster_path } = movie;
   const [like, setLike] = useState(false);
-
-  const handleLikeToggle = () => {
-    setLike((prevLike) => !prevLike);
+  const {user} = UserAuth()
+  const handleLikeToggle = async () => {
+    const userEmail = user?.email;
+    if (userEmail) {
+      //getting particular documnet
+      const userDoc = doc(db, "users", userEmail);
+      setLike(!like);
+      await updateDoc(userDoc, {
+        favShows: arrayUnion({ ...movie }),
+      });
+    } else {
+      alert("please login ");
+    }
   };
 
   return (
@@ -26,7 +38,7 @@ const MovieItem = ({ movie }) => {
             size={30}
             className="absolute top-2 left-2 cursor-pointer text-red-500"
             onClick={handleLikeToggle}
-            fill="currentColor" 
+            fill="currentColor"
           />
         ) : (
           <Heart
