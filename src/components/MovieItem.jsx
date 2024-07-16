@@ -4,6 +4,7 @@ import { Heart } from "lucide-react"; // Assuming Heart is the outline version
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { UserAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 const MovieItem = ({ movie }) => {
   const { title, backdrop_path, poster_path } = movie;
   const [like, setLike] = useState(false);
@@ -18,7 +19,9 @@ const MovieItem = ({ movie }) => {
         favShows: arrayUnion({ ...movie }),
       });
     } else {
-      alert("please login ");
+      toast.error('Please login', {
+        position: 'top-right',
+      });
     }
   };
 

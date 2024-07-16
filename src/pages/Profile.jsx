@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import img from "../assets/signup.jpg";
 import axios from "axios";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { UserAuth } from "../context/AuthContext";
 import { db } from "../services/firebase";
 import { createImgUrl } from "../services/movieService";
@@ -24,6 +24,12 @@ const Profile = () => {
       current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
+  const handleRemoveFav  = async( movie )=>{
+    const userDoc = doc( db , "users" , user.email )
+    await updateDoc( userDoc , {
+      favShows : arrayRemove(movie)
+    })
+  }
   return (
     <>
       <div>
@@ -50,19 +56,20 @@ const Profile = () => {
           ref={sliderRef}
           className="w-full h-full  no-scrollbar overflow-x-scroll overflow-hidden whitespace-nowrap scroll-smooth"
         >
-          {movies.map(({id, backdrop_path, title, poster_path}) => (
+          {movies?.map((movie) => (
             <div
-              key={id}
+              key={movie.id}
               className="relative w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px] inline-block rounded-lg overflow-hidden cursor-pointer m-2"
             >
               <img
                 className="w-full h-40 block object-cover"
-                src={createImgUrl(backdrop_path ?? poster_path, "w500")}
-                alt={title}
+                src={createImgUrl(movie.backdrop_path ?? movie.poster_path, "w500")}
+                alt={movie.title}
               />
               <div className="w-full items-center absolute top-0 left-0 h-40 bg-black/80 opacity-0 hover:opacity-100 ">
+              <p>  <X onClick={ ()=>handleRemoveFav(movie)} size={30} className=" top-2 right-2 absolute" /> </p>
                 <p className="text-xs md:text-sm flex items-center h-full justify-center">
-                  {title}
+                  {movie.title}
                 </p>
               </div>
             </div>

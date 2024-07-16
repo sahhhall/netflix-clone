@@ -56,6 +56,12 @@ const SignUp = () => {
         password: formdata.password ? "" : "Password is required",
       }));
       return;
+    };
+    if (validationErr.email) {
+      return
+    }
+    if(validationErr.password){
+      return
     }
     setLoading(true);
     try {
